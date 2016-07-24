@@ -1,7 +1,20 @@
 import json
 import requests
+import datetime
 
 # Set some variables
+
+
+
+earliest = "2016-11-1" # earliest time for departure
+
+latest = "2017-02-1" # earliest time for return
+
+stay = 30
+
+stay_min = 14 # minimum duration of stay
+
+stay_max = 34 # maximum duration of stay
 
 deplist = ["2016-12-5"] # list of departure dates
 
@@ -25,12 +38,22 @@ saleCountry = "MX" # IATA country code representing the point of sale
 
 ticketingCountry = "MX" # IATA country code representing the point of ticketing
 
-nSolutions = 100 # maximum number of results (max = 500)
+nSolutions = 1 # maximum number of results (max = 500)
 
 keyfile = 'key1.txt' # file containing api key
 
 # IATA Codes: https://en.wikipedia.org/wiki/International_Air_Transport_Association_code
 
+
+def dategen_fixed(earliest,latest,stay): # date generator for fixed duration time
+
+    earliest = datetime.datetime.strptime(earliest, '%Y-%m-%d').date()
+    latest = datetime.datetime.strptime(latest, '%Y-%m-%d').date()
+
+    deplist = range(earliest, latest-datetime.timedelta(days=stay+1))
+    retlist = range(earliest - datetime.timedelta(days=stay),latest)
+
+    return (deplist, retlist)
 
 
 def read_key(keyfile):
@@ -120,6 +143,8 @@ def checkprice(url, saleCountry, ticketingCountry, nSolutions, dep, ret, origin,
 def main():
 
     url="https://www.googleapis.com/qpxExpress/v1/trips/search?key="+read_key(keyfile)
+
+    deplist, retlist = dategen_fixed(earliest,latest,stay)
 
     for dep, ret in zip(deplist,retlist):
         print(dep," to ",ret)
